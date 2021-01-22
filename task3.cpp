@@ -5,6 +5,11 @@
 class Example : public olc::PixelGameEngine
 {
 public:
+
+    int* cell;
+    int height;
+    int width;
+
 	Example()
 	{
 		// Name your application
@@ -14,24 +19,30 @@ public:
 public:
 	bool OnUserCreate() override
 	{
-		// Called once at the start, so create things here
+        height = 64;
+        width = 64;
+		cell = new int[height*width];
+    
 		return true;
 	}
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		// Called once per frame, draws random coloured pixels
-		for (int x = 0; x < ScreenWidth(); x++)
-			for (int y = 0; y < ScreenHeight(); y++)
-				Draw(x, y, olc::Pixel(rand() % 256, rand() % 256, rand() % 256));
-		return true;
+		Clear(olc::Pixel(olc::BLACK));
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                FillRect(x*4, y*4 + 3, 4, 1);
+            }
+        }
+        return true;
 	}
 };
 
 int main()
 {
 	Example demo;
-	if (demo.Construct(256, 240, 4, 4))
+	if (demo.Construct(64*4, 64*4, 4, 4))
 		demo.Start();
 	return 0;
 }
