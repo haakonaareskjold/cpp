@@ -32,7 +32,8 @@ public:
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                FillRect(x*4, y*4 + 3, 4, 1);
+                FillRect(x*8, y*8 + 7, 6, 1);
+                FillRect(x*8 + 7, y*8 + 1, 1, 6);
             }
         }
         return true;
