@@ -38,8 +38,8 @@ public:
 public:
 	bool OnUserCreate() override
 	{
-        height = 16;
-        width = 16;
+        height = 64;
+        width = 64;
 		cells = new int[height*width];
 
         memset(cells, 0, (height*width));
@@ -54,7 +54,7 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-        if (visited >= totalCells) {
+        if (visited >= totalCells || stack.empty()) {
             return true;
         }
         auto getOffset = [&](int x, int y) {
@@ -67,6 +67,7 @@ public:
 
         int x = stack.top().first;
         int y = stack.top().second;
+
         std::vector<faces> candidates = std::vector<faces>();
 
         // check north
@@ -118,7 +119,7 @@ public:
                     stack.push(std::make_pair(x-1, y));
             }
 
-            visited++;            
+            visited++;        
         }
 
 
@@ -152,7 +153,7 @@ public:
 int main()
 {
 	Example demo;
-	if (demo.Construct(16*8, 16*8, 4, 4))
+	if (demo.Construct(64*8, 64*8, 4,4))
 		demo.Start();
 	return 0;
 }
