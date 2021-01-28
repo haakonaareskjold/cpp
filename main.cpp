@@ -23,7 +23,7 @@ public:
     };
 
     int totalCells;
-    int* cells;
+    uint8_t* cells;
     int visited;
     std::stack<std::pair<int, int >> stack;
     int height;
@@ -40,7 +40,7 @@ public:
 	{
         height = 64;
         width = 64;
-		cells = new int[height*width];
+		cells = new uint8_t[height*width];
 
         memset(cells, 0, (height*width));
 
@@ -109,7 +109,7 @@ public:
                     stack.push(std::make_pair(x, y+1));
                 break;
                 case EAST:
-                    cells[calcOffset(x+1,y)] |= EAST_FACE;
+                    cells[calcOffset(x,y)] |= EAST_FACE;
                     cells[calcOffset(x+1,y)] |= VISITED;
                     stack.push(std::make_pair(x+1, y));
                 break;
