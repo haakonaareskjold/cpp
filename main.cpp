@@ -2,6 +2,7 @@
 #include "olcPixelGameEngine.h"
 #include <utility>
 #include <stack>
+#include <vector>
 
 // Override base class with your custom functionality
 class Example : public olc::PixelGameEngine
@@ -14,7 +15,16 @@ public:
         VISITED = 0X8
     };
 
+    enum faces {
+        NORTH,
+        SOUTH,
+        EAST,
+        WEST
+    };
+
+    int totalCells;
     int* cells;
+    int visited;
     std::stack<std::pair<int, int >> stack;
     int height;
     int width;
@@ -28,28 +38,90 @@ public:
 public:
 	bool OnUserCreate() override
 	{
-        height = 64;
-        width = 64;
+        height = 16;
+        width = 16;
 		cells = new int[height*width];
 
         memset(cells, 0, (height*width));
 
         stack.push(std::make_pair(0,0));
         cells[0] |= VISITED;
-        cells[0] |= SOUTH_FACE;
-        cells[1] |= VISITED;
-        cells[0] |= EAST_FACE;
-        cells[width] = VISITED;
-    
+        totalCells = height*width;
+        visited = 1;
 
 		return true;
 	}
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
+        if (visited >= totalCells) {
+            return true;
+        }
         auto getOffset = [&](int x, int y) {
             return cells[x + y * width];
         };
+
+        auto calcOffset = [&](int x, int y) {
+            return x + y * width;
+        };
+
+        int x = stack.top().first;
+        int y = stack.top().second;
+        std::vector<faces> candidates = std::vector<faces>();
+
+        // check north
+        if(y > 0 && !(getOffset(x,y-1) & VISITED)) {
+            candidates.push_back(NORTH);
+        }
+
+        // check south
+        if (y < (height -1) && !(getOffset(x,y+1) & VISITED)) {
+            candidates.push_back(SOUTH);
+        }
+
+        // check east
+        if (x < (width -1) && !(getOffset(x+1,y) & VISITED)) {
+            candidates.push_back(EAST);
+        }
+
+        // check west
+        if (x > 0 && !(getOffset(x-1,y) & VISITED)) {
+            candidates.push_back(WEST);
+        }
+
+
+        if(candidates.empty()) {
+            stack.pop();
+        } else {
+        
+            faces drawn = candidates[rand() % candidates.size()];
+
+            switch (drawn) {
+                case NORTH:
+                    cells[calcOffset(x,y-1)] |= SOUTH_FACE;
+                    cells[calcOffset(x,y-1)] |= VISITED;
+                    stack.push(std::make_pair(x, y-1));
+                break;
+                case SOUTH:
+                    cells[calcOffset(x,y)] |= SOUTH_FACE;
+                    cells[calcOffset(x,y+1)] |= VISITED;
+                    stack.push(std::make_pair(x, y+1));
+                break;
+                case EAST:
+                    cells[calcOffset(x+1,y)] |= EAST_FACE;
+                    cells[calcOffset(x+1,y)] |= VISITED;
+                    stack.push(std::make_pair(x+1, y));
+                break;
+                case WEST:
+                    cells[calcOffset(x-1,y)] |= EAST_FACE;
+                    cells[calcOffset(x-1, y)] |= VISITED;
+                    stack.push(std::make_pair(x-1, y));
+            }
+
+            visited++;            
+        }
+
+
 
 		Clear(olc::Pixel(olc::BLACK));
 
@@ -80,7 +152,7 @@ public:
 int main()
 {
 	Example demo;
-	if (demo.Construct(64*4, 64*4, 4, 4))
+	if (demo.Construct(16*8, 16*8, 4, 4))
 		demo.Start();
 	return 0;
 }
